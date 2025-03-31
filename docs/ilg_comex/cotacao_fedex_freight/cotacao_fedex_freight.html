@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="shortcut icon" href="../../../res/logo_lci_esfera_favicon.ico" type="image/x-icon">
+    <title>Documentação - Fluxo de Cotação FEDEX Freight</title>
+</head>
+<body>
+    <header>
+        <img src="../../../res/logo_lci_full.png" alt="Logo LCI Soluções">
+        <nav>
+            <ul>
+                <li><a href="../ilg_home.html">Home ILG</a></li>
+                <li><a href="../../about/index.html">Sobre</a></li>
+                <li><a href="../../contact/index.html">Contato</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+
+
+    <h1>Documentação - Fluxo de Cotação FEDEX Freight</h1>
+    
+    <h2>Descrição</h2>
+    <p>Este fluxo recebe dados de um negócio do Bitrix24, realiza uma cotação de frete utilizando a API da FEDEX e retorna os dados atualizados para o mesmo negócio no Bitrix24.</p>
+    
+    <h2>Webhook</h2>
+    <p>O webhook é disparado na fase de "Gerando cotação" do pipeline comercial do Bitrix24. (<a href="https://ilgcomex.bitrix24.com.br/crm/configs/bp/CRM_DEAL/edit/13/?back_url=%2Fcrm%2Fdeal%2Fautomation%2F0%2F" target="_blank">Link para o pipeline</a>)</p>
+    
+    <h2>Trigger</h2>
+    <p>O fluxo pode ser acionado de duas formas:</p>
+    <ol>
+        <li>Através do webhook configurado no Bitrix24.</li>
+        <li>Manualmente, clicando no botão "Test workflow" na interface do n8n.</li>
+    </ol>
+    
+    <h2>Nós Principais</h2>
+    <ol>
+        <li><code>Normalize</code>: Normaliza os dados recebidos do Bitrix24, extraindo as informações necessárias para a cotação.</li>
+        <li><code>BITRIX lists.element.get</code>: Obtém informações adicionais do negócio no Bitrix24.</li>
+        <li><code>Split Out</code>: Divide os dados em itens individuais para processamento.</li>
+        <li><code>Edit Fields Caixa</code>: Edita os campos relacionados às dimensões da caixa.</li>
+        <li><code>Aggregate</code>: Agrega os dados da caixa em um único item.</li>
+        <li><code>TOKEN0</code>: Obtém o token de autenticação da API da FEDEX.</li>
+        <li><code>If Seguro?</code>: Verifica se o cliente optou por contratar seguro para a carga.</li>
+        <li><code>FEDEX Quotes0</code>, <code>FEDEX Quotes1</code>, <code>FEDEX Quotes2</code>, <code>FEDEX Quotes3</code>: Realizam a cotação de frete utilizando a API da FEDEX para diferentes serviços (Priority e Economy) e opções de seguro.</li>
+        <li><code>info to code 1</code>, <code>info to code 2</code>, <code>info to code 3</code>, <code>info to code 4</code>: Extraem informações relevantes das respostas da API da FEDEX.</li>
+        <li><code>Code 1</code>, <code>Code 2</code>, <code>Code 3</code>, <code>Code 4</code>: Executam cálculos e transformações nos dados de cotação.</li>
+        <li><code>BITRIX crm.deal.update0</code>, <code>BITRIX crm.deal.update1</code>, <code>BITRIX crm.deal.update2</code>, <code>BITRIX crm.deal.update3</code>: Atualizam os campos personalizados do negócio no Bitrix24 com os valores da cotação.</li>
+        <li><code>Wait4</code>: Aguarda um período de tempo antes de prosseguir para a próxima etapa.</li>
+        <li><code>BITRIX crm.deal.update</code>: Atualiza o estágio do negócio no Bitrix24 após a conclusão da cotação.</li>
+    </ol>
+    
+    <h2>Dados de Entrada</h2>
+    <p>O fluxo espera receber um objeto JSON contendo as seguintes informações:</p>
+    <pre>
+{
+  "id": "ID do negócio no Bitrix24",
+  "seguro": "Indica se o cliente deseja contratar seguro para a carga ('Sim' ou 'Não')",
+  "cepR": "CEP do remetente",
+  "cepD": "CEP do destinatário",
+  "cidadeR": "Cidade do remetente",
+  "cidadeD": "Cidade do destinatário",
+  "paisR": "País do remetente (código ISO de duas letras)",
+  "paisD": "País do destinatário (código ISO de duas letras)",
+  "nomeR": "Nome do remetente",
+  "nomeD": "Nome do destinatário",
+  "estadoR": "Estado do remetente (sigla)",
+  "estadoD": "Estado do destinatário (sigla)",
+  "descontoDHL": "Percentual de desconto para DHL",
+  "descontoUPSs": "Percentual de desconto para UPS Standard",
+  "descontoUPSe": "Percentual de desconto para UPS Express",
+  "descontoFEDEXp": "Percentual de desconto para FEDEX Priority",
+  "descontoFEDEXe": "Percentual de desconto para FEDEX Economy",
+  "despAdd": "Despesas adicionais (valor e moeda)",
+  "valorTotal": "Valor total declarado da carga",
+  "pesoTotal": "Peso total da carga",
+  "dolar": "Cotação do dólar",
+  "peso_considerado": "Peso considerado para fins de cotação",
+  "id_quem_executou": "ID do usuário que executou a cotação"
+}
+    </pre>
+    
+    <h2>Dados de Saída</h2>
+    <p>O fluxo atualiza os seguintes campos personalizados do negócio no Bitrix24 com os valores da cotação:</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Descrição</th>
+                <th>Código</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Peso Bruto Total</td>
+                <td>UF_CRM_1718973265928</td>
+            </tr>
+            <tr>
+                <td>Valor Total Declarado</td>
+                <td>UF_CRM_1718973282623</td>
+            </tr>
+            <tr>
+                <td>Quantidade de Volumes</td>
+                <td>UF_CRM_1711545449620</td>
+            </tr>
+            <tr>
+                <td>Peso da Remessa (Dia do Envio)</td>
+                <td>UF_CRM_1718990843990</td>
+            </tr>
+            <tr>
+                <td>Fedex Priority API - Real</td>
+                <td>UF_CRM_1715346108460</td>
+            </tr>
+            <tr>
+                <td>Fedex Priority API - Dólar</td>
+                <td>UF_CRM_1715346122913</td>
+            </tr>
+            <tr>
+                <td>Fedex Priority - Valor do Frete</td>
+                <td>UF_CRM_1715346149197</td>
+            </tr>
+            <tr>
+                <td>Fedex Priority - Valor de Desconto</td>
+                <td>UF_CRM_1715346161390</td>
+            </tr>
+            <tr>
+                <td>Fedex Priority - Valor Final</td>
+                <td>UF_CRM_1715346175025</td>
+            </tr>
+            <tr>
+                <td>Fedex Priority - Valor do Frete (R$)</td>
+                <td>UF_CRM_1719332999193</td>
+            </tr>
+            <tr>
+                <td>Fedex Priority - Valor de Desconto (R$)</td>
+                <td>UF_CRM_1719333537820</td>
+            </tr>
+            <tr>
+                <td>Fedex Priority - Valor Final (R$)</td>
+                <td>UF_CRM_1718991285382</td>
+            </tr>
+            <tr>
+                <td>Fedex Economy API - Real</td>
+                <td>UF_CRM_1715345568403</td>
+            </tr>
+            <tr>
+                <td>Fedex Economy API - Dólar</td>
+                <td>UF_CRM_1715345952395</td>
+            </tr>
+            <tr>
+                <td>Fedex Economy - Valor do Frete</td>
+                <td>UF_CRM_1715345970141</td>
+            </tr>
+            <tr>
+                <td>Fedex Economy - Valor de Desconto</td>
+                <td>UF_CRM_1715346005980</td>
+            </tr>
+            <tr>
+                <td>Fedex Economy - Valor Final</td>
+                <td>UF_CRM_1715346037576</td>
+            </tr>
+            <tr>
+                <td>Fedex Economy - Valor do Frete (R$)</td>
+                <td>UF_CRM_1719333381860</td>
+            </tr>
+            <tr>
+                <td>Fedex Economy - Valor de Desconto (R$)</td>
+                <td>UF_CRM_1719333414314</td>
+            </tr>
+            <tr>
+                <td>Fedex Economy - Valor Final (R$)</td>
+                <td>UF_CRM_1718991188169</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <h2>Tratamento de Erros</h2>
+    <ul>
+        <li>Caso o usuário preencha incorretamente o CEP do destinatário, o fluxo pode retornar um erro na cotação. É importante validar os dados de entrada antes de prosseguir com a cotação.</li>
+        <li>Se ocorrerem erros na comunicação com a API da FEDEX, o fluxo está configurado para continuar a execução normalmente (propriedade <code>onError</code> definida como <code>continueRegularOutput</code> no nó <code>TOKEN0</code>).</li>
+    </ul>
+    
+    <h2>Configurações Adicionais</h2>
+    <ul>
+        <li>O fuso horário do fluxo está definido como "America/Sao_Paulo".</li>
+        <li>A política de chamada está definida como "workflowsFromSameOwner", o que significa que apenas fluxos do mesmo proprietário podem chamar este fluxo.</li>
+        <li>O fluxo de erro está definido como "5VSmyNDlUPkioORy".</li>
+    </ul>
+    
+    <h2>Observações</h2>
+    <ul>
+        <li>O fluxo utiliza a API da FEDEX para realizar as cotações de frete. É necessário ter as credenciais de acesso à API configuradas corretamente.</li>
+        <li>O arquivo JSON do fluxo contém informações sensíveis, como IDs de usuários e credenciais de API. Certifique-se de não compartilhar publicamente esse arquivo e de armazená-lo de forma segura.</li>
+        <li>A documentação apresentada é baseada nas informações disponíveis no arquivo JSON do fluxo. É importante mantê-la atualizada sempre que houver modificações no fluxo.</li>
+    </ul>
+</main>
+</body>
+</html>

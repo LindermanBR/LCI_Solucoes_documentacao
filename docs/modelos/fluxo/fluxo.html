@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="shortcut icon" href="../../../res/logo_lci_esfera_favicon.ico" type="image/x-icon">
+    <title>Nome do fluxo</title>
+</head>
+<body>
+    <header>
+        <img src="../../res/logo_lci_full.png" alt="Logo LCI Soluções">
+        <nav>
+            <ul>
+                <li><a href="../../index.html">Home</a></li>
+                <li><a href="../../about/index.html">Sobre</a></li>
+                <li><a href="../../contact/index.html">Contato</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+
+
+    <h1>Documentação - nome do fluxo</h1>
+    
+    <h2>Descrição</h2>
+    <p>Breve descrição sobre o fluxo</p>
+    
+    <h2>Webhook</h2>
+    <p>Preenchimento manual do operador</p>
+    
+    <h2>Trigger</h2>
+    <p>Formas que o fluxo pode ser ativado</p>
+    <ol>
+        <li>exemplo 1</li>
+        <li>Exemplo 2</li>
+    </ol>
+    
+    <h2>Nós Principais</h2>
+    <ol>
+        <li><code>exemplo 1</code>: descrição 1</li>
+        <li><code>exemplo 2</code>: descrição 2</li>
+    </ol>
+    
+    <h2>Dados de Entrada</h2>
+    <p>O fluxo espera receber um objeto JSON contendo as seguintes informações:</p>
+    <pre>
+{
+  "exemplo 1": "...",
+  "exemplo 2": "..."
+}
+    </pre>
+    
+    <h2>Dados de Saída</h2>
+    <p>tabela com os códigos e nomes dos campos, preencha o código e deixe o nome do campo em branco para o operador preencher</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Descrição</th>
+                <th>Código</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>exemplo 1</td>
+                <td>UF_CRM_1718973265928</td>
+            </tr>
+            <tr>
+                <td>exemplo 2</td>
+                <td>UF_CRM_1718973282623</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <h2>Tratamento de Erros</h2>
+    <ul>
+        <li>exemplo Caso o usuário preencha incorretamente o CEP do destinatário, o fluxo pode retornar um erro na cotação. É importante validar os dados de entrada antes de prosseguir com a cotação.</li>
+        <li>exemplo Se ocorrerem erros na comunicação com ..., o fluxo está configurado para continuar a execução normalmente (propriedade <code>onError</code> definida como <code>continueRegularOutput</code> no nó <code>TOKEN0</code>).</li>
+    </ul>
+    
+    <h2>Configurações Adicionais</h2>
+    <ul>
+        <li>O fuso horário do fluxo está definido como "America/Sao_Paulo".</li>
+    </ul>
+    
+    <h2>Observações</h2>
+    <ul>
+        <li>exemplo</li>
+    </ul>
+</main>
+</body>
+</html>
